@@ -1,52 +1,18 @@
-== Camel Example Spring Boot
+= Apache Camel Twitter to Telegram forwarding demo
 
-This example shows how to work with a simple Apache Camel application using Spring Boot.
+Based on https://github.com/apache/camel/tree/camel-2.22.2/examples/camel-example-spring-boot[Camel Spring Boot Example]
 
-The example generates messages using timer trigger, writes them to standard output.
-
-=== Camel routes
-
-The Camel route is located in the `MyCamelRouter` class. In this class the route
-starts from a timer, that triggers every 2nd second and calls a Spring Bean `MyBean`
-which returns a message, that is routed to a stream endpoint which writes to standard output.
-
-=== Using Camel components
-
-Apache Camel provides 200+ components which you can use to integrate and route messages between many systems
-and data formats. To use any of these Camel components, add the component as a dependency to your project.
-
-=== How to run
-
-You can run this example using
-
-    mvn spring-boot:run
-
-=== To get health check
-
-To show a summary of spring boot health check
+== How to build:
 
 ----
-curl -XGET -s http://localhost:8080/actuator/health
+mvn clean package
 ----
 
-=== To get info about the routes
-
-To show a summary of all the routes
+== How to run:
 
 ----
-curl -XGET -s http://localhost:8080/actuator/camelroutes
+java "-DtelegramAuthorizationToken=<your-telegram-bot-token>" -jar target/camel-example-spring-boot-*.jar
 ----
 
-To show detailed information for a specific route
-
-----
-curl -XGET -s http://localhost:8080/actuator/camelroutes/{id}/detail
-----
-
-
-=== More information
-
-You can find more information about Apache Camel at the website: http://camel.apache.org/
-
-
-
+Where `<your-telegram-bot-token>` stands for your telegram bot's token, see
+https://www.nicolaferraro.me/2016/05/27/creating-a-telegram-bot-in-5-minutes-with-apache-camel/

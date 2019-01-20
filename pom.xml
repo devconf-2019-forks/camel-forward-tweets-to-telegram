@@ -27,9 +27,9 @@
     <version>2.22.2</version>
   </parent>
 
-  <artifactId>camel-example-spring-boot</artifactId>
-  <name>Camel :: Example :: Spring Boot</name>
-  <description>An example showing how to work with Camel and Spring Boot</description>
+  <artifactId>camel-forward-tweets-to-telegram</artifactId>
+  <name>camel-forward-tweets-to-telegram</name>
+  <description>Forward Twitter messages to Telegram using Apache Camel</description>
 
   <properties>
     <category>Beginner</category>
@@ -89,7 +89,11 @@
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
-      <artifactId>camel-stream-starter</artifactId>
+      <artifactId>camel-twitter-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-telegram-starter</artifactId>
     </dependency>
 
     <!-- test -->
@@ -126,31 +130,13 @@
         <artifactId>camel-maven-plugin</artifactId>
         <version>${project.version}</version>
         <!-- allows to fail if not all routes are fully covered during testing -->
-<!--
+        <!--
         <configuration>
           <failOnError>true</failOnError>
         </configuration>
--->
+        -->
       </plugin>
     </plugins>
   </build>
 
-  <profiles>
-    <profile>
-      <id>jdk9+-build</id>
-      <activation>
-        <jdk>[9,)</jdk>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <argLine>--add-modules java.xml.bind --add-opens java.base/java.lang=ALL-UNNAMED</argLine>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

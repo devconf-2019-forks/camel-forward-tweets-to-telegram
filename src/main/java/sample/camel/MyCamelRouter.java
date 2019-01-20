@@ -16,7 +16,12 @@
  */
 package sample.camel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,14 +32,42 @@ import org.springframework.stereotype.Component;
 @Component
 public class MyCamelRouter extends RouteBuilder {
 
+    @Autowired
+    private TelegramBot bot;
+
+    @Autowired
+    private UpperCaseKeywordsProcessor upperCaseKeywordsProcessor;
+
+    @Value("${telegramAuthorizationToken}")
+    private String telegramAuthorizationToken;
+
     @Override
     public void configure() throws Exception {
-        from("timer:hello?period={{timer.period}}").routeId("hello").routeGroup("hello-group")
-                .transform().method("myBean", "saySomething")
-                .filter(simple("${body} contains 'foo'"))
-                    .to("log:foo")
-                .end()
-                .to("stream:out");
+
+        /* The main route to forward the messages from Twitter to Telegram */
+        fromF("twitter://search?type=polling&delay=6000"
+                + "&keywords={{twitterKeywords}}"
+                + "&consumerKey={{twitterConsumerKey}}"
+                + "&consumerSecret={{twitterConsumerSecret}}"
+                + "&accessToken={{twitterAccessToken}}"
+                + "&accessTokenSecret={{twitterAccessTokenSecret}}")
+        .log("Raw tweet: ${body}")
+        .process(upperCaseKeywordsProcessor)
+        .process(exchange -> {
+            /* Create list of telegram recipient URIs and store it to telegramRecipients header */
+            final List<String> telegramRecipients = new ArrayList<>();
+            for (String chatId : bot.getChatIds()) {
+                telegramRecipients.add(String.format("telegram:bots/%s?chatId=%s", telegramAuthorizationToken, chatId));
+            }
+            exchange.getIn().setHeader("telegramRecipients", telegramRecipients);
+        })
+        .recipientList(header("telegramRecipients"));
+
+        /* Helper route to store Telegram chatIds where the messages from twitter should be forwarded */
+        fromF("telegram:bots/{{telegramAuthorizationToken}}")
+        .process(bot)
+        .toF("telegram:bots/{{telegramAuthorizationToken}}");
+
     }
 
 }
