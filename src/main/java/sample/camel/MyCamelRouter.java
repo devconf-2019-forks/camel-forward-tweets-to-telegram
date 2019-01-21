@@ -45,11 +45,8 @@ public class MyCamelRouter extends RouteBuilder {
     public void configure() throws Exception {
 
         /* The main route to forward the messages from Twitter to Telegram */
-        fromF("twitter-search:{{twitterKeywords}}?delay={{twitterDelayMs}}"
-                + "&consumerKey={{twitterConsumerKey}}"
-                + "&consumerSecret={{twitterConsumerSecret}}"
-                + "&accessToken={{twitterAccessToken}}"
-                + "&accessTokenSecret={{twitterAccessTokenSecret}}")
+        from("timer:tick")
+        .setBody().constant("Hi from Camel route!")
         .log("Raw tweet: ${body}")
         .process(upperCaseKeywordsProcessor)
         .process(exchange -> {
